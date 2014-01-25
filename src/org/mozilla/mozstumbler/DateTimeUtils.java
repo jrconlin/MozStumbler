@@ -9,8 +9,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 final class DateTimeUtils {
+<<<<<<< HEAD
     private static final DateFormat sLocaleFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     private static final DateFormat sISO8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
+=======
+    private static final DateFormat mISO8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
+>>>>>>> Bump Android gradle plugin version to 0.7.+
 
     static final long MILLISECONDS_PER_DAY = 86400000;  // milliseconds/day
 

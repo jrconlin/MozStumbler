@@ -20,7 +20,6 @@
     <string name="last_location">Ostatnia lokalizacja: %1$s</string>
     <string name="last_upload_time">Ostatnio wysłano o: %1$s</string>
     <string name="reports_sent">Wysłane raporty: %1$d</string>
-    <string name="service_scanning">Skanowanie w poszukiwaniu Wi-Fi i sieci komórkowych</string>
 
     <string name="enter_nickname">Wpisz Pseudonim (opcjonalnie)</string>
     <string name="enter_nickname_title">Pseudonim: </string>
@@ -39,7 +38,6 @@
 
     <string name="about_version">Wersja %1$s</string>
     <string name="about_more">Więcej…</string>
-    
     <string name="detected_activity">Wykryta aktywność: %1$s</string>
     <string name="detected_activity_in_vehicle">Ruch (w pojeździe)</string>
     <string name="detected_activity_on_bicycle">Ruch (na rowerze)</string>

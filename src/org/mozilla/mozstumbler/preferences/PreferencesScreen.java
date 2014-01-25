@@ -19,6 +19,10 @@ import android.util.Log;
 public class PreferencesScreen extends PreferenceActivity {
 
     private EditTextPreference mNicknamePreference;
+<<<<<<< HEAD
+=======
+    private Preference mPowerSavingPreference;
+>>>>>>> Bump Android gradle plugin version to 0.7.+
     private Prefs mPrefs;
 
     @SuppressWarnings("deprecation")
@@ -31,6 +35,10 @@ public class PreferencesScreen extends PreferenceActivity {
         }
         addPreferencesFromResource(R.xml.preferences);
         mNicknamePreference = (EditTextPreference) getPreferenceManager().findPreference("nickname");
+<<<<<<< HEAD
+=======
+        mPowerSavingPreference = getPreferenceManager().findPreference("power_saving_mode");
+>>>>>>> Bump Android gradle plugin version to 0.7.+
         mPrefs = new Prefs(this);
 
         setNicknamePreferenceTitle(mPrefs.getNickname());
