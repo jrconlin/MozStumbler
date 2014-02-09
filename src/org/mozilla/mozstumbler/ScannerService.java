@@ -15,10 +15,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 public final class ScannerService extends Service {
@@ -27,7 +30,6 @@ public final class ScannerService extends Service {
     private static final String LOGTAG          = ScannerService.class.getName();
     private static final int    NOTIFICATION_ID = 1;
     private static final int    WAKE_TIMEOUT    = 5 * 1000;
-
     private Scanner             mScanner;
     private Reporter            mReporter;
     private LooperThread        mLooper;
@@ -50,11 +52,9 @@ public final class ScannerService extends Service {
                 @Override
                 public void run() {
                     try {
-                        Log.d(LOGTAG, "Running looper...");
-
-                        String title = getResources().getString(R.string.service_name);
-                        String text = getResources().getString(R.string.service_scanning);
-                        postNotification(title, text, Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
+                        CharSequence title = getResources().getText(R.string.service_name);
+                        CharSequence text = getResources().getText(R.string.service_scanning);
+                        postNotification(title, text);
 
                         mScanner.startScanning();
 
@@ -75,23 +75,6 @@ public final class ScannerService extends Service {
         }
 
         @Override
-        public void startWifiScanningOnly() throws RemoteException {
-            if (mScanner.isScanning()) {
-                return;
-            }
-
-            mLooper.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Log.d(LOGTAG, "Running looper...");
-                        mScanner.startWifiOnly();
-                    } catch (Exception e) {}
-                }
-            });
-        }
-
-        @Override
         public void stopScanning() throws RemoteException {
             if (!mScanner.isScanning()) {
                 return;
@@ -103,8 +86,7 @@ public final class ScannerService extends Service {
                     AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     alarm.cancel(mWakeIntent);
 
-                    NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    nm.cancel(NOTIFICATION_ID);
+                    cancelNotification();
                     stopForeground(true);
 
                     mScanner.stopScanning();
@@ -137,6 +119,16 @@ public final class ScannerService extends Service {
         @Override
         public int getVisibleAPCount() throws RemoteException {
             return mScanner.getVisibleAPCount();
+        }
+
+        @Override
+        public int getCellInfoCount() throws RemoteException {
+            return mScanner.getCellInfoCount();
+        }
+
+        @Override
+        public int getCurrentCellInfoCount() throws RemoteException {
+            return mScanner.getCurrentCellInfoCount();
         }
 
         @Override
@@ -179,17 +171,12 @@ public final class ScannerService extends Service {
                 try {
                     if (mBinder.isScanning()) {
                         mBinder.stopScanning();
-
-                        String title = getResources().getString(R.string.service_name);
-                        String batteryLowWarning = getResources().getString(R.string.battery_low_warning);
-                        postNotification(title, batteryLowWarning, Notification.FLAG_AUTO_CANCEL);
                     }
                 } catch (RemoteException e) {
                     Log.e(LOGTAG, "", e);
                 }
             }
         };
-
         registerReceiver(mBatteryLowReceiver, new IntentFilter(Intent.ACTION_BATTERY_LOW));
 
         Prefs prefs = new Prefs(this);
@@ -212,28 +199,30 @@ public final class ScannerService extends Service {
         mScanner = null;
 
         mReporter.shutdown();
-        mReporter = null; 
+        mReporter = null;
 
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.cancel(NOTIFICATION_ID);
+        cancelNotification();
     }
 
-    private void postNotification(final String title, final String text, final int flags) {
+    private void postNotification(final CharSequence title, final CharSequence text) {
         mLooper.post(new Runnable() {
             @Override
             public void run() {
                 Context ctx = getApplicationContext();
                 Intent notificationIntent = new Intent(ctx, MainActivity.class);
                 notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_FROM_BACKGROUND);
-
                 PendingIntent contentIntent = PendingIntent.getActivity(ctx, NOTIFICATION_ID, notificationIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-
                 int icon = R.drawable.ic_status_scanning;
-                Notification n = buildNotification(ctx, icon, title, text, contentIntent, flags);
+                Notification n = buildNotification(ctx, icon, title, text, contentIntent);
                 startForeground(NOTIFICATION_ID, n);
             }
         });
+    }
+
+    private void cancelNotification() {
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.cancel(NOTIFICATION_ID);
     }
 
     @Override
@@ -248,15 +237,17 @@ public final class ScannerService extends Service {
         return mBinder;
     }
 
-    @SuppressWarnings("deprecation")
     private static Notification buildNotification(Context context, int icon,
-                                                  String contentTitle,
-                                                  String contentText,
-                                                  PendingIntent contentIntent,
-                                                  int flags) {
-        Notification n = new Notification(icon, contentTitle, 0);
-        n.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-        n.flags |= flags;
-        return n;
+                                                  CharSequence contentTitle,
+                                                  CharSequence contentText,
+                                                  PendingIntent contentIntent) {
+        return new NotificationCompat.Builder(context)
+                                     .setSmallIcon(icon)
+                                     .setContentTitle(contentTitle)
+                                     .setContentText(contentText)
+                                     .setContentIntent(contentIntent)
+                                     .setOngoing(true)
+                                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                                     .build();
     }
 }

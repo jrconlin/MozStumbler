@@ -36,11 +36,29 @@
            android:textAppearance="?android:attr/textAppearanceMedium" />
 
        <TextView
-           android:id="@+id/visible_wifi_access_points"
+           android:id="@+id/cells_visible"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:layout_alignParentLeft="true"
            android:layout_below="@+id/locations_scanned"
+           android:text="@string/cells_visible"
+           android:textAppearance="?android:attr/textAppearanceMedium" />
+
+       <TextView
+           android:id="@+id/cells_scanned"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignParentLeft="true"
+           android:layout_below="@+id/cells_visible"
+           android:text="@string/cells_scanned"
+           android:textAppearance="?android:attr/textAppearanceMedium" />
+
+       <TextView
+           android:id="@+id/visible_wifi_access_points"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignParentLeft="true"
+           android:layout_below="@+id/cells_scanned"
            android:text="@string/visible_wifi_access_points"
            android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -71,34 +89,17 @@
            android:text="@string/reports_sent"
            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-       <Button
-           android:id="@+id/view_leaderboard"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:layout_alignParentLeft="true"
-           android:layout_below="@+id/reports_sent"
-           android:onClick="onClick_ViewLeaderboard"
-           android:text="@string/view_leaderboard" />
-
-       <Button
-           android:id="@+id/view_map"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:layout_alignParentLeft="true"
-           android:layout_below="@+id/view_leaderboard"
-           android:onClick="onClick_ViewMap"
-           android:text="@string/view_map" />
-
-       <Button
+       <ToggleButton
            android:id="@+id/toggle_scanning"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:layout_alignParentBottom="true"
            android:layout_alignParentLeft="true"
            android:layout_alignParentRight="true"
-           android:layout_below="@+id/view_map"
-           android:onClick="onClick_ToggleScanning"
-           android:text="@string/start_scanning"
+           android:layout_below="@+id/reports_sent"
+           android:onClick="onToggleScanningClicked"
+           android:textOff="@string/start_scanning"
+           android:textOn="@string/stop_scanning" 
            android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

@@ -1,35 +1,43 @@
 package org.mozilla.mozstumbler.preferences;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build.VERSION;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.UUID;
+import org.mozilla.mozstumbler.BuildConfig;
+import org.mozilla.mozstumbler.R;
 
 public final class Prefs {
     private static final String     LOGTAG        = Prefs.class.getName();
             static final String     PREFS_FILE    = Prefs.class.getName();
     private static final String     NICKNAME_PREF = "nickname";
+    private static final String     POWER_SAVING_MODE_PREF = "power_saving_mode";
     private static final String     REPORTS_PREF  = "reports";
+    private static final String     VALUES_VERSION_PREF = "values_version";
+    private static final String     WIFI_ONLY = "wifi_only";
 
-    private int mCurrentVersion;
-    private Context mContext;
+    private final Context mContext;
 
     public Prefs(Context context) {
-        try {
-            PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(),
-                                                                        PackageManager.GET_ACTIVITIES);
-            mCurrentVersion = pi.versionCode;
-        } catch (PackageManager.NameNotFoundException exception) {
-            Log.e(LOGTAG, "getPackageInfo failed", exception);
-            mCurrentVersion = 0;
-        }
         mContext = context;
+    }
+
+    @SuppressLint("InlinedApi")
+    public void setDefaultValues() {
+        final SharedPreferences prefs = getPrefs();
+        if (prefs.getInt(VALUES_VERSION_PREF, -1) != BuildConfig.VERSION_CODE) {
+            Log.i(LOGTAG, "Version of the application has changed. Updating default values.");
+            PreferenceManager.setDefaultValues(mContext, PREFS_FILE,
+                    Context.MODE_MULTI_PROCESS, R.xml.preferences, true);
+            prefs.edit().putInt(VALUES_VERSION_PREF, BuildConfig.VERSION_CODE).commit();
+        }
     }
 
     public String getNickname() {
@@ -39,6 +47,10 @@ public final class Prefs {
         }
 
         return TextUtils.isEmpty(nickname) ? null : nickname;
+    }
+
+    public boolean getWifi() {
+        return getBoolPref(WIFI_ONLY);
     }
 
     public void setReports(String json) {
@@ -53,12 +65,17 @@ public final class Prefs {
         return getPrefs().getString(key, null);
     }
 
+    private boolean getBoolPref(String key) {
+        return getPrefs().getBoolean(key, false);
+    }
+
     private void setStringPref(String key, String value) {
         SharedPreferences.Editor editor = getPrefs().edit();
         editor.putString(key, value);
         apply(editor);
     }
 
+    @TargetApi(9)
     private static void apply(SharedPreferences.Editor editor) {
         if (VERSION.SDK_INT >= 9) {
             editor.apply();
@@ -67,6 +84,7 @@ public final class Prefs {
         }
     }
 
+    @SuppressLint("InlinedApi")
     private SharedPreferences getPrefs() {
         return mContext.getSharedPreferences(PREFS_FILE, Context.MODE_MULTI_PROCESS | Context.MODE_PRIVATE);
     }

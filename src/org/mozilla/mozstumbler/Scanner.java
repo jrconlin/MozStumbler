@@ -42,10 +42,6 @@ class Scanner {
     mContext.sendBroadcast(startIntent);
   }
 
-  void startWifiOnly() {
-    mWifiScanner.start();
-  }
-
   void stopScanning() {
     if (!mIsScanning) {
       return;
@@ -63,6 +59,7 @@ class Scanner {
     // for now all we want is to update the UI anyway
     Intent stopIntent = new Intent(ScannerService.MESSAGE_TOPIC);
     stopIntent.putExtra(Intent.EXTRA_SUBJECT, "Scanner");
+    stopIntent.putExtra("fixes", 0);
     mContext.sendBroadcast(stopIntent);
   }
 
@@ -76,6 +73,14 @@ class Scanner {
 
   int getVisibleAPCount() {
      return mWifiScanner.getVisibleAPCount();
+  }
+
+  int getCellInfoCount() {
+     return mCellScanner.getCellInfoCount();
+  }
+
+  int getCurrentCellInfoCount() {
+     return mCellScanner.getCurrentCellInfoCount();
   }
 
   int getLocationCount() {
